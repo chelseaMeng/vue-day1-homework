@@ -9,7 +9,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin'); //自动删除di
 module.exports = {
   mode: 'development', //mode模式开发/生产阶段,解除警告
   //入口
-  entry: './src/index.js',
+  entry: './src/main.js',
   //出口
   output: {
     //path.resolve()相当于path.join()
@@ -30,5 +30,91 @@ module.exports = {
   devServer: {
     // port:3000, 端口号,使用默认的,默认的被占用,再使用其他的
     open: true,
+  },
+
+  module: {
+    // loader 加载器 配置在这儿
+    rules: [
+      // loader的规则
+      {
+        //处理css文件
+        test: /\.css$/, // 匹配所有的css文件
+        // loader执行顺序:从右到左
+        // css-loader 识别css内容并打包
+        // style-loader 将样式, 把css插入到dom中
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        //处理less文件
+        test: /\.less$/, // 匹配执行类型的文件
+        // 使用less-loader, 让webpack处理less文件, 内置还会用less翻译less代码成css内容
+        // 执行的顺序 less-loader css-loader style-loader
+        //'less-loader'less转成css
+        //'css-loader' css转成webpack识别的代码
+        //style-loader 代码插入dom
+        use: ['style-loader', 'css-loader', 'less-loader'],
+      },
+      //   {
+      //     //webpack4
+      //     test: /\.(png|jpg|gif|jpeg)$/i,
+      //     use: [
+      //       {
+      //         loader: 'url-loader', // 图片转base64字符串打包到js中
+      //         //配置limit超过8kb直接复制到dist下面,不超过8kb转base64
+      //         options: {
+      //           limit: 1 * 1024,
+      //         },
+      //       },
+      //     ],
+      //   },
+      {
+        // 图片文件的配置(仅适用于webpack5版本)
+        test: /\.(png|jpg|gif|jpeg)$/i,
+        type: 'asset', // 复制一份到dist 或者转base64
+        // type: 'asset/resource' // 复制一份到dist
+        // type: 'asset/inline' // 转base64
+        // parse: {
+        //   dataUrlCondition: {
+        //     maxSize: 8 * 1024,
+        //   },
+        // },
+      },
+      {
+        // webpack5默认内部不认识这些文件, 所以当做静态资源直接输出即可
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        type: 'asset/resource',
+        //解析器
+        generator: {
+          filename: 'font-[name].[hash:6][ext]',
+          //输出的文件名:文件打包之后生成的哈希值,指定为6位,[ext]是文件的扩展名
+        },
+      },
+      //   { // 处理字体图标的解析
+      //     test: /\.(eot|svg|ttf|woff|woff2)$/,
+      //         use: [
+      //             {
+      //                 loader: 'url-loader',
+      //                 options: {
+      //                     limit: 2 * 1024,
+      //                     // 配置输出的文件名
+      //                     name: '[name].[ext]',
+      //                     // 配置输出的文件目录
+      //                     outputPath: "fonts/"
+      //                 }
+      //             }
+      //         ]
+      // },
+      //babel-loader可以webpack对js高级语法进行降级,打包
+      {
+        test: /\.js$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'], // 预设:转码规则(用bable开发环境本来预设的)
+          },
+        },
+      },
+    ],
   },
 };
